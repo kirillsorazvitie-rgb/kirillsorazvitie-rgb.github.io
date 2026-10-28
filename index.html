@@ -521,6 +521,7 @@ footer { padding-block: 28px 40px; font-size: 13.5px; color: var(--ink-3); }
   </section>
 </main>
 
+<section class="band" id="napravleniya"><div class="wrap"><div class="sec-head"><h2>Популярные направления</h2><p>Цена и сроки по каждому маршруту. <a href="gruzoperevozki/">Все направления</a></p></div><div class="chips"><a class="chip" href="gruzoperevozki/moskva-kazan/" style="text-decoration:none"><span>Москва — Казань</span></a><a class="chip" href="gruzoperevozki/kazan-moskva/" style="text-decoration:none"><span>Казань — Москва</span></a><a class="chip" href="gruzoperevozki/moskva-ekaterinburg/" style="text-decoration:none"><span>Москва — Екатеринбург</span></a><a class="chip" href="gruzoperevozki/ekaterinburg-moskva/" style="text-decoration:none"><span>Екатеринбург — Москва</span></a><a class="chip" href="gruzoperevozki/kazan-ekaterinburg/" style="text-decoration:none"><span>Казань — Екатеринбург</span></a><a class="chip" href="gruzoperevozki/ekaterinburg-kazan/" style="text-decoration:none"><span>Екатеринбург — Казань</span></a><a class="chip" href="gruzoperevozki/moskva-nizhniy-novgorod/" style="text-decoration:none"><span>Москва — Нижний Новгород</span></a><a class="chip" href="gruzoperevozki/moskva-naberezhnye-chelny/" style="text-decoration:none"><span>Москва — Набережные Челны</span></a><a class="chip" href="gruzoperevozki/moskva-ufa/" style="text-decoration:none"><span>Москва — Уфа</span></a><a class="chip" href="gruzoperevozki/moskva-perm/" style="text-decoration:none"><span>Москва — Пермь</span></a><a class="chip" href="gruzoperevozki/moskva-chelyabinsk/" style="text-decoration:none"><span>Москва — Челябинск</span></a><a class="chip" href="gruzoperevozki/nizhniy-novgorod-ekaterinburg/" style="text-decoration:none"><span>Нижний Новгород — Екатеринбург</span></a></div></div></section>
 <footer>
   <div class="wrap foot">
     <p><b>ИП Пайметов Кирилл Евгеньевич</b> · ИНН 434585647865 · ОГРНИП 325430000027633</p>
@@ -1106,6 +1107,7 @@ footer { padding-block: 28px 40px; font-size: 13.5px; color: var(--ink-3); }
 
   function start(saved) {
     if (saved && saved.from && CITIES[saved.from]) Object.assign(S, saved, { phase: 'order', prog: 0, chat: [] });
+    try { const q = new URLSearchParams(location.search), f = q.get('from'), t = q.get('to'); if (CITIES[f] && CITIES[t] && f !== t) { S.from = f; S.to = t; } } catch (e) {}
     R = route(S.from, S.to);
     buildMap(); buildPicker(); renderTable();
     updateAll(); drawRoute();
