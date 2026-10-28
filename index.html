@@ -1,0 +1,1123 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="description" content="Грузоперевозки фурами по межгороду: Москва, Казань, Екатеринбург и города по трассам М-7 и М-12. Подбор кузова и ориентировочная цена за минуту.">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Кузов Межгород — фура по межгороду в пару касаний">
+<meta property="og:description" content="Подберите кузов под груз и узнайте ориентировочную цену перевозки по коридору Москва — Казань — Екатеринбург.">
+<meta name="theme-color" content="#f0561a">
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<title>Кузов Межгород</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Golos+Text:wght@400;500;600;700&family=JetBrains+Mono:wght@500;600&family=Unbounded:wght@600;700&display=swap">
+<style>
+[hidden] { display: none !important; }
+:root { padding-top: env(safe-area-inset-top, 0px); padding-bottom: env(safe-area-inset-bottom, 0px); }
+/* Layout: sticky bar → hero (copy + road sign | live phone demo) → tariff picker (questions | result) → rate table → steps → FAQ → contacts.
+   Brand carries over from «Штаб Кузова»: tarp orange accent, cool asphalt neutrals, federal-route red only on М-shields, motorway green only on the sign. */
+:root {
+  --bg: #eef1f4;
+  --surface: #ffffff;
+  --surface-2: #f4f6f8;
+  --ink: #121820;
+  --ink-2: #46515d;
+  --ink-3: #76828e;
+  --line: #d7dde3;
+  --accent: #f0561a;
+  --accent-ink: #ffffff;
+  --accent-soft: rgba(240, 86, 26, 0.1);
+  --sign: #c62a1f;
+  --board: #14704a;
+  --board-ink: #ffffff;
+  --ok: #1d8656;
+  --warn: #a8620a;
+  --device: #1a1f25;
+  --map-land: #e5e9e1;
+  --map-water: #a7c7de;
+  --map-water-ink: #4f86ad;
+  --map-road: #ffffff;
+  --map-road-edge: #c6cdc3;
+  --route-case: #ffffff;
+  --shadow: 0 1px 2px rgba(18, 24, 32, 0.06), 0 10px 30px rgba(18, 24, 32, 0.08);
+  --shadow-lg: 0 2px 6px rgba(18, 24, 32, 0.1), 0 30px 60px rgba(18, 24, 32, 0.18);
+  --f-display: "Unbounded", "Golos Text", system-ui, sans-serif;
+  --f-body: "Golos Text", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --f-data: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0d1115; --surface: #151a20; --surface-2: #1b2128; --ink: #e7ecf1; --ink-2: #a7b2bd; --ink-3: #7a8692; --line: #28313a;
+    --accent: #ff6c2f; --accent-ink: #1b0b03; --accent-soft: rgba(255, 108, 47, 0.14); --sign: #d23a2e; --board: #125f3f; --board-ink: #f4fff8;
+    --ok: #3fb27f; --warn: #e0a24a; --device: #04060a; --map-land: #1a2027; --map-water: #22405a; --map-water-ink: #5f8fb4;
+    --map-road: #2e3742; --map-road-edge: #20272f; --route-case: #0d1115;
+    --shadow: 0 1px 2px rgba(0, 0, 0, 0.3), 0 10px 30px rgba(0, 0, 0, 0.35); --shadow-lg: 0 2px 6px rgba(0, 0, 0, 0.4), 0 30px 60px rgba(0, 0, 0, 0.5);
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #0d1115; --surface: #151a20; --surface-2: #1b2128; --ink: #e7ecf1; --ink-2: #a7b2bd; --ink-3: #7a8692; --line: #28313a;
+  --accent: #ff6c2f; --accent-ink: #1b0b03; --accent-soft: rgba(255, 108, 47, 0.14); --sign: #d23a2e; --board: #125f3f; --board-ink: #f4fff8;
+  --ok: #3fb27f; --warn: #e0a24a; --device: #04060a; --map-land: #1a2027; --map-water: #22405a; --map-water-ink: #5f8fb4;
+  --map-road: #2e3742; --map-road-edge: #20272f; --route-case: #0d1115;
+  --shadow: 0 1px 2px rgba(0, 0, 0, 0.3), 0 10px 30px rgba(0, 0, 0, 0.35); --shadow-lg: 0 2px 6px rgba(0, 0, 0, 0.4), 0 30px 60px rgba(0, 0, 0, 0.5);
+  color-scheme: dark;
+}
+
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; scroll-padding-top: calc(env(safe-area-inset-top, 0px) + 72px); }
+body { margin: 0; background: var(--bg); color: var(--ink); font-family: var(--f-body); font-size: 16px; line-height: 1.55; -webkit-font-smoothing: antialiased; }
+body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-area-inset-top, 0px); z-index: 10; background: var(--surface); }
+a { color: inherit; }
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.mono { font-family: var(--f-data); font-variant-numeric: tabular-nums; letter-spacing: -0.01em; }
+.wrap { max-width: 1160px; margin: 0 auto; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
+h1, h2, h3 { font-family: var(--f-display); font-weight: 700; letter-spacing: -0.02em; text-wrap: balance; margin: 0; }
+h2 { font-size: clamp(22px, 2.8vw, 30px); line-height: 1.15; }
+h3 { font-size: 18px; line-height: 1.25; }
+p { margin: 0; }
+.eyebrow { font-size: 12.5px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: var(--ink-3); }
+
+/* buttons */
+.btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; height: 48px; padding: 0 20px; border-radius: 12px; border: 1.5px solid var(--line); background: var(--surface); color: var(--ink); font: 600 15.5px/1 var(--f-body); text-decoration: none; cursor: pointer; transition: transform .12s ease, background .15s ease, border-color .15s ease; }
+.btn:hover { border-color: var(--ink-3); }
+.btn:active { transform: translateY(1px); }
+.btn-accent { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); }
+.btn-accent:hover { border-color: var(--accent); filter: brightness(1.05); }
+.btn-sm { height: 38px; padding: 0 14px; font-size: 14px; border-radius: 10px; }
+
+/* header */
+.top { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 20; background: color-mix(in srgb, var(--surface) 92%, transparent); backdrop-filter: saturate(1.4) blur(10px); -webkit-backdrop-filter: saturate(1.4) blur(10px); border-bottom: 1px solid var(--line); }
+.top-in { display: flex; align-items: center; gap: 24px; height: 60px; }
+.logo { display: inline-flex; align-items: center; gap: 10px; text-decoration: none; font-family: var(--f-display); font-weight: 700; font-size: 19px; letter-spacing: -0.02em; }
+.logo-mark { width: 32px; height: 32px; border-radius: 9px; background: var(--accent); color: var(--accent-ink); display: grid; place-items: center; }
+.logo-sub { font-family: var(--f-body); font-weight: 500; font-size: 13px; color: var(--ink-3); letter-spacing: 0; padding-top: 3px; }
+.nav { display: flex; gap: 22px; margin-left: auto; font-size: 14.5px; font-weight: 500; }
+.nav a { text-decoration: none; color: var(--ink-2); }
+.nav a:hover { color: var(--ink); }
+.top .btn { margin-left: 4px; }
+@media (max-width: 920px) { .nav { display: none; } .top .btn { margin-left: auto; } }
+
+/* hero */
+.hero { padding-block: 48px 64px; }
+.hero-in { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 380px); gap: 56px; align-items: center; }
+.hero-copy { display: grid; gap: 22px; min-width: 0; }
+.hero h1 { font-size: clamp(30px, 4.6vw, 50px); line-height: 1.06; }
+.hero h1 em { font-style: normal; color: var(--accent); }
+.lead { font-size: 18px; color: var(--ink-2); max-width: 34em; }
+.cta-row { display: flex; flex-wrap: wrap; gap: 12px; }
+@media (max-width: 900px) { .hero-in { grid-template-columns: minmax(0, 1fr); gap: 40px; } .hero { padding-block: 32px 48px; } }
+
+/* road sign */
+.sign { width: min(100%, 430px); background: var(--board); color: var(--board-ink); border-radius: 12px; padding: 14px 18px 12px; box-shadow: inset 0 0 0 3px var(--board), inset 0 0 0 5px rgba(255, 255, 255, 0.9), var(--shadow); }
+.sign-top { display: flex; align-items: center; gap: 8px; padding-bottom: 8px; margin-bottom: 4px; border-bottom: 1.5px solid rgba(255, 255, 255, 0.35); }
+.shield { background: var(--sign); color: #ffffff; font: 700 13px/1 var(--f-body); padding: 4px 8px 3px; border-radius: 4px; box-shadow: inset 0 0 0 1.5px #ffffff; letter-spacing: 0.02em; }
+.sign-from { margin-left: auto; font-size: 12.5px; opacity: 0.85; }
+.sign-rows { list-style: none; margin: 0; padding: 0; display: grid; }
+.sign-rows li { display: grid; grid-template-columns: 26px minmax(0, 1fr) auto; align-items: center; gap: 10px; padding: 6px 0; font-weight: 600; font-size: 18px; }
+.sign-rows li + li { border-top: 1px solid rgba(255, 255, 255, 0.18); }
+.sign-rows .km { font-family: var(--f-data); font-weight: 600; font-variant-numeric: tabular-nums; }
+.sign-rows svg { display: block; }
+
+/* phone */
+.phone-col { display: grid; justify-items: center; gap: 14px; min-width: 0; }
+.phone { width: min(100%, 360px); height: 700px; border-radius: 48px; background: var(--device); padding: 10px; box-shadow: var(--shadow-lg); }
+.screen { position: relative; width: 100%; height: 100%; border-radius: 38px; overflow: hidden; background: var(--map-land); isolation: isolate; }
+.phone-note { font-size: 13.5px; color: var(--ink-3); text-align: center; max-width: 30em; }
+@media (max-width: 420px) { .phone { height: 650px; border-radius: 40px; padding: 8px; } .screen { border-radius: 32px; } }
+#map { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
+.m-land { fill: var(--map-land); }
+.m-water { fill: none; stroke: var(--map-water); stroke-width: 3; stroke-linecap: round; stroke-linejoin: round; }
+.m-rlab { fill: var(--map-water-ink); font-family: var(--f-body); font-style: italic; }
+.m-road-edge { fill: none; stroke: var(--map-road-edge); stroke-width: 6; stroke-linecap: round; }
+.m-road { fill: none; stroke: var(--map-road); stroke-width: 3.5; stroke-linecap: round; }
+.m-route-case { fill: none; stroke: var(--route-case); stroke-width: 9; stroke-linecap: round; stroke-linejoin: round; }
+.m-route { fill: none; stroke: var(--accent); stroke-width: 5; stroke-linecap: round; stroke-linejoin: round; }
+.m-dot { fill: var(--surface); stroke: var(--ink-3); stroke-width: 1.5; }
+.m-city.on .m-dot { stroke: var(--accent); stroke-width: 2; }
+.m-city.end .m-dot { fill: var(--accent); stroke: var(--route-case); stroke-width: 2.5; }
+.m-lab { fill: var(--ink-2); font-family: var(--f-body); font-weight: 500; paint-order: stroke; stroke: var(--map-land); stroke-linejoin: round; }
+.m-city.on .m-lab { fill: var(--ink); font-weight: 600; }
+.m-idle { fill: var(--ink-3); stroke: var(--route-case); }
+.m-pulse { fill: var(--accent); }
+.m-truck-bg { fill: var(--accent); stroke: var(--route-case); stroke-width: 2.5; }
+.m-truck-arrow { fill: var(--accent-ink); }
+
+.app-top { position: absolute; top: 14px; left: 14px; right: 14px; display: flex; justify-content: space-between; align-items: center; pointer-events: none; }
+.app-brand { display: inline-flex; align-items: center; gap: 7px; background: var(--surface); border-radius: 999px; padding: 6px 12px 6px 6px; box-shadow: var(--shadow); font-family: var(--f-display); font-size: 13.5px; font-weight: 700; }
+.app-brand i { width: 22px; height: 22px; border-radius: 7px; background: var(--accent); color: var(--accent-ink); display: grid; place-items: center; }
+.demo { background: var(--ink); color: var(--surface); border-radius: 999px; padding: 4px 10px; font-size: 11.5px; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; }
+
+.sheet { position: absolute; left: 0; right: 0; bottom: 0; background: var(--surface); border-radius: 22px 22px 0 0; padding: 8px 14px 16px; box-shadow: 0 -10px 30px rgba(0, 0, 0, 0.14); display: grid; gap: 11px; max-height: 66%; overflow-y: auto; font-size: 14px; }
+.grab { width: 38px; height: 4px; border-radius: 4px; background: var(--line); justify-self: center; }
+.rt { background: var(--surface-2); border-radius: 14px; display: grid; }
+.rt-row { position: relative; display: grid; grid-template-columns: 14px minmax(0, 1fr); align-items: center; gap: 10px; padding: 0 12px; }
+.rt-row + .rt-row { border-top: 1px solid var(--line); }
+.rt-row .dot { width: 10px; height: 10px; border-radius: 50%; border: 2.5px solid var(--accent); }
+.rt-row .dot.b { background: var(--accent); }
+.sel { position: relative; min-width: 0; }
+.sel::after { content: ""; position: absolute; right: 2px; top: 50%; width: 7px; height: 7px; border-right: 2px solid var(--ink-3); border-bottom: 2px solid var(--ink-3); transform: translateY(-70%) rotate(45deg); pointer-events: none; }
+.sel select { appearance: none; -webkit-appearance: none; width: 100%; border: 0; background: transparent; color: var(--ink); font: 600 15px var(--f-body); padding: 12px 22px 12px 0; cursor: pointer; }
+.when { display: flex; gap: 6px; }
+.chip-btn { flex: 1; border: 1.5px solid var(--line); background: var(--surface); color: var(--ink-2); border-radius: 10px; padding: 7px 8px; font: 600 13px var(--f-body); cursor: pointer; }
+.chip-btn[aria-pressed="true"] { border-color: var(--ink); color: var(--ink); background: var(--surface-2); }
+.tcar { display: flex; gap: 8px; overflow-x: auto; scroll-snap-type: x mandatory; margin: 0 -14px; padding: 2px 14px 4px; scrollbar-width: none; }
+.tcar::-webkit-scrollbar { display: none; }
+.tcard { flex: 0 0 112px; scroll-snap-align: start; text-align: left; border: 1.5px solid transparent; background: var(--surface-2); border-radius: 14px; padding: 8px 10px 9px; cursor: pointer; color: var(--ink); font: inherit; display: grid; gap: 2px; }
+.tcard[aria-checked="true"] { border-color: var(--accent); background: var(--accent-soft); }
+.tcard .tk { color: var(--ink-2); height: 26px; }
+.tcard[aria-checked="true"] .tk { color: var(--accent); }
+.tcard b { font-size: 13px; font-weight: 600; line-height: 1.2; }
+.tcard small { font-size: 11.5px; color: var(--ink-3); }
+.tcard .mono { font-size: 13.5px; font-weight: 600; }
+.go { height: 50px; border-radius: 14px; border: 0; background: var(--accent); color: var(--accent-ink); font: 600 16px var(--f-body); cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; }
+.go.ghost { background: var(--surface-2); color: var(--ink); }
+.meta { font-size: 12.5px; color: var(--ink-3); text-align: center; }
+.s-title { font-family: var(--f-display); font-size: 16px; font-weight: 700; letter-spacing: -0.01em; display: flex; align-items: center; gap: 8px; }
+.s-sub { color: var(--ink-2); font-size: 13.5px; }
+.bar { height: 6px; border-radius: 6px; background: var(--surface-2); overflow: hidden; }
+.bar i { display: block; height: 100%; width: 0; background: var(--accent); border-radius: 6px; transition: width .2s linear; }
+.checks { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; }
+.checks li { display: grid; grid-template-columns: 20px minmax(0, 1fr); gap: 8px; align-items: center; color: var(--ink-3); transition: color .2s; }
+.checks li.done { color: var(--ink); }
+.checks .ck { width: 18px; height: 18px; border-radius: 50%; border: 2px solid var(--line); display: grid; place-items: center; }
+.checks li.done .ck { border-color: var(--ok); background: var(--ok); color: #fff; }
+.kv { display: grid; gap: 0; background: var(--surface-2); border-radius: 14px; padding: 2px 12px; }
+.kv div { display: flex; justify-content: space-between; gap: 12px; padding: 8px 0; }
+.kv div + div { border-top: 1px solid var(--line); }
+.kv dt { color: var(--ink-3); font-size: 13px; }
+.kv dd { margin: 0; font-weight: 600; text-align: right; font-size: 13.5px; }
+.ok-t { color: var(--ok); }
+.chat { background: var(--surface-2); border-radius: 14px; padding: 10px; display: grid; gap: 6px; }
+.chat-h { font-size: 12px; font-weight: 600; color: var(--ink-3); text-transform: uppercase; letter-spacing: 0.06em; }
+.msg { max-width: 85%; padding: 7px 10px; border-radius: 12px; font-size: 13.5px; line-height: 1.35; }
+.msg.drv { background: var(--surface); justify-self: start; border-bottom-left-radius: 4px; }
+.msg.me { background: var(--accent); color: var(--accent-ink); justify-self: end; border-bottom-right-radius: 4px; }
+.quick { display: flex; gap: 6px; flex-wrap: wrap; }
+.quick button { border: 1.5px solid var(--line); background: var(--surface); color: var(--ink); border-radius: 999px; padding: 5px 10px; font: 500 12.5px var(--f-body); cursor: pointer; }
+.tl { list-style: none; margin: 0; padding: 0; display: grid; gap: 0; }
+.tl li { display: grid; grid-template-columns: 18px minmax(0, 1fr) auto; gap: 8px; align-items: center; padding: 4px 0; font-size: 13.5px; color: var(--ink-3); }
+.tl li.done, .tl li.now { color: var(--ink); }
+.tl li .pt { width: 10px; height: 10px; border-radius: 50%; border: 2px solid var(--line); justify-self: center; }
+.tl li.done .pt { background: var(--ok); border-color: var(--ok); }
+.tl li.now .pt { background: var(--accent); border-color: var(--accent); box-shadow: 0 0 0 4px var(--accent-soft); }
+.tl small { font-size: 12px; color: var(--ink-3); font-family: var(--f-data); }
+.link-btn { border: 0; background: none; color: var(--ink-3); font: 500 13px var(--f-body); cursor: pointer; text-decoration: underline; text-underline-offset: 3px; justify-self: center; padding: 2px; }
+
+/* sections */
+.band { padding-block: 64px; }
+.band-alt { background: var(--surface); border-block: 1px solid var(--line); }
+.sec-head { display: grid; gap: 8px; margin-bottom: 28px; max-width: 46em; }
+.sec-head p { color: var(--ink-2); font-size: 16.5px; }
+
+/* picker */
+.picker { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 430px); gap: 28px; align-items: start; }
+@media (max-width: 960px) { .picker { grid-template-columns: minmax(0, 1fr); } }
+.q { display: grid; gap: 14px; }
+.qstep { border: 1px solid var(--line); background: var(--surface); border-radius: 16px; padding: 16px 18px 18px; margin: 0; display: grid; gap: 12px; min-width: 0; }
+.qstep legend { float: left; width: 100%; padding: 0; display: flex; align-items: center; gap: 10px; font-family: var(--f-display); font-weight: 700; font-size: 15.5px; letter-spacing: -0.01em; }
+.qstep legend + * { clear: both; }
+.qn { width: 26px; height: 26px; border-radius: 8px; background: var(--ink); color: var(--surface); font: 700 13px var(--f-data); display: grid; place-items: center; flex: none; }
+.route-pick { display: grid; grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr); gap: 10px; align-items: end; }
+@media (max-width: 520px) { .route-pick { grid-template-columns: minmax(0, 1fr); } .swap { justify-self: start; transform: rotate(90deg); } }
+.fld { display: grid; gap: 5px; min-width: 0; }
+.fld > span { font-size: 13px; color: var(--ink-3); font-weight: 500; }
+.fld select, .fld input { width: 100%; height: 46px; border-radius: 11px; border: 1.5px solid var(--line); background: var(--surface-2); color: var(--ink); font: 500 15.5px var(--f-body); padding: 0 12px; }
+.fld .sel select { padding-right: 30px; }
+.fld .sel::after { right: 14px; }
+.swap { width: 44px; height: 46px; border-radius: 11px; border: 1.5px solid var(--line); background: var(--surface); color: var(--ink-2); cursor: pointer; display: grid; place-items: center; }
+.hint { font-size: 13.5px; color: var(--ink-3); }
+.hint b { color: var(--ink-2); font-weight: 600; }
+.chips { display: flex; flex-wrap: wrap; gap: 8px; }
+.chip { position: relative; }
+.chip input { position: absolute; opacity: 0; inset: 0; margin: 0; cursor: pointer; }
+.chip span { display: inline-block; border: 1.5px solid var(--line); border-radius: 999px; padding: 8px 14px; font-size: 14.5px; font-weight: 500; color: var(--ink-2); background: var(--surface); }
+.chip input:checked + span { border-color: var(--ink); color: var(--ink); background: var(--surface-2); box-shadow: inset 0 0 0 1px var(--ink); }
+.chip input:focus-visible + span { outline: 2px solid var(--accent); outline-offset: 2px; }
+.range { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 4px 12px; align-items: center; }
+.range > span { font-size: 14.5px; font-weight: 500; }
+.range output { font: 600 15px var(--f-data); font-variant-numeric: tabular-nums; }
+.range input { grid-column: 1 / -1; width: 100%; accent-color: var(--accent); height: 26px; }
+.check { display: grid; grid-template-columns: 22px minmax(0, 1fr); gap: 10px; align-items: start; cursor: pointer; }
+.check input { width: 20px; height: 20px; margin: 2px 0 0; accent-color: var(--accent); }
+.check span { font-weight: 500; display: grid; }
+.check small { font-weight: 400; color: var(--ink-3); font-size: 13.5px; }
+.fld-inline { max-width: 280px; }
+
+.result { background: var(--surface); border: 1px solid var(--line); border-radius: 18px; box-shadow: var(--shadow); overflow: hidden; }
+.res-body { padding: 20px 20px 18px; display: grid; gap: 14px; }
+.res-head { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 4px 12px; align-items: end; }
+.res-head .tk { color: var(--accent); width: 96px; grid-row: span 2; align-self: center; }
+.res-head h3 { font-size: 21px; }
+.why { color: var(--ink-2); font-size: 15px; }
+.why.warn { color: var(--warn); }
+.price { display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap; padding: 12px 0 4px; border-top: 1px solid var(--line); }
+.price .mono { font-size: 34px; font-weight: 600; letter-spacing: -0.03em; }
+.price span:last-child { color: var(--ink-3); font-size: 14px; }
+.lines { margin: 0; display: grid; gap: 6px; font-size: 14px; }
+.lines div { display: flex; justify-content: space-between; gap: 12px; }
+.lines dt { color: var(--ink-2); }
+.lines dd { margin: 0; font-family: var(--f-data); font-variant-numeric: tabular-nums; white-space: nowrap; }
+.eta { display: flex; flex-wrap: wrap; gap: 6px 14px; font-size: 13.5px; color: var(--ink-2); }
+.eta b { font-weight: 600; color: var(--ink); }
+.alts { display: grid; gap: 6px; }
+.alts > p { font-size: 13px; color: var(--ink-3); font-weight: 500; }
+.alt { display: grid; grid-template-columns: 54px minmax(0, 1fr) auto; gap: 10px; align-items: center; text-align: left; border: 1.5px solid var(--line); background: var(--surface); border-radius: 12px; padding: 7px 12px 7px 8px; cursor: pointer; color: var(--ink); font: inherit; }
+.alt:hover { border-color: var(--ink-3); }
+.alt .tk { color: var(--ink-3); }
+.alt b { font-weight: 600; font-size: 14px; }
+.alt .mono { font-size: 14px; }
+.alt small { display: block; color: var(--ink-3); font-size: 12.5px; }
+.res-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+@media (max-width: 400px) { .res-actions { grid-template-columns: 1fr; } }
+.req { border-top: 1px solid var(--line); background: var(--surface-2); padding: 18px 20px 20px; display: grid; gap: 12px; }
+.req h3 { font-size: 16px; }
+.req-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+@media (max-width: 480px) { .req-grid { grid-template-columns: 1fr; } }
+.req .fld input { background: var(--surface); }
+.req textarea { width: 100%; min-height: 168px; resize: vertical; border-radius: 11px; border: 1.5px solid var(--line); background: var(--surface); color: var(--ink); font: 13.5px/1.5 var(--f-data); padding: 10px 12px; }
+.req-actions { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
+.toast { font-size: 13.5px; color: var(--ok); font-weight: 500; }
+.contacts { display: grid; gap: 8px; }
+.contact-row { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 12px; }
+.contact-row .mono { font-size: 15.5px; user-select: all; }
+.copy { border: 1.5px solid var(--line); background: var(--surface); color: var(--ink-2); border-radius: 8px; padding: 4px 10px; font: 500 12.5px var(--f-body); cursor: pointer; }
+.contact-row a { font-size: 13.5px; color: var(--ink-3); }
+.fine { font-size: 13px; color: var(--ink-3); }
+
+/* tariffs table */
+.tbl-wrap { overflow-x: auto; border: 1px solid var(--line); border-radius: 16px; background: var(--surface); }
+table { border-collapse: collapse; width: 100%; min-width: 760px; font-size: 14.5px; }
+th, td { padding: 14px 16px; text-align: left; vertical-align: middle; }
+thead th { font-size: 12.5px; font-weight: 600; color: var(--ink-3); text-transform: uppercase; letter-spacing: 0.06em; border-bottom: 1px solid var(--line); white-space: nowrap; }
+tbody tr + tr td { border-top: 1px solid var(--line); }
+td.num { font-family: var(--f-data); font-variant-numeric: tabular-nums; white-space: nowrap; }
+td.num.r, th.r { text-align: right; }
+.t-name { display: grid; grid-template-columns: 64px minmax(0, 1fr); gap: 12px; align-items: center; }
+.t-name .tk { color: var(--ink-2); }
+.t-name b { display: block; font-weight: 600; }
+.t-name small { color: var(--ink-3); font-size: 13px; }
+.rate { font-weight: 600; }
+.rate small { display: block; font-weight: 400; color: var(--ink-3); font-size: 12px; }
+.tbl-note { margin-top: 12px; font-size: 13.5px; color: var(--ink-3); }
+
+/* steps */
+.steps { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: 14px; counter-reset: st; }
+.steps li { counter-increment: st; background: var(--surface); border: 1px solid var(--line); border-radius: 16px; padding: 18px; display: grid; gap: 8px; align-content: start; }
+.steps li::before { content: counter(st); font: 700 13px var(--f-data); width: 28px; height: 28px; border-radius: 8px; display: grid; place-items: center; background: var(--accent-soft); color: var(--accent); }
+.steps b { font-family: var(--f-display); font-size: 15px; letter-spacing: -0.01em; }
+.steps p { font-size: 14.5px; color: var(--ink-2); }
+
+/* faq */
+.faq { display: grid; gap: 10px; max-width: 820px; }
+.faq details { background: var(--surface); border: 1px solid var(--line); border-radius: 14px; padding: 0 18px; }
+.faq summary { cursor: pointer; padding: 16px 0; font-weight: 600; font-size: 16px; list-style: none; display: flex; justify-content: space-between; gap: 16px; }
+.faq summary::-webkit-details-marker { display: none; }
+.faq summary::after { content: "+"; font: 600 20px/1 var(--f-data); color: var(--ink-3); }
+.faq details[open] summary::after { content: "–"; }
+.faq details p { padding: 0 0 16px; color: var(--ink-2); max-width: 62ch; }
+
+/* contact band + footer */
+.cband { background: var(--ink); color: var(--surface); padding-block: 56px; }
+.cband-in { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 28px; align-items: center; }
+@media (max-width: 820px) { .cband-in { grid-template-columns: minmax(0, 1fr); } }
+.cband h2 { color: var(--surface); }
+.cband p { color: color-mix(in srgb, var(--surface) 75%, transparent); margin-top: 10px; max-width: 34em; }
+.cband .contacts { gap: 12px; }
+.cband .contact-row .mono { font-size: 19px; color: var(--surface); }
+.cband .copy { background: transparent; color: var(--surface); border-color: color-mix(in srgb, var(--surface) 35%, transparent); }
+.cband .contact-row a { color: color-mix(in srgb, var(--surface) 70%, transparent); }
+footer { padding-block: 28px 40px; font-size: 13.5px; color: var(--ink-3); }
+.foot { display: grid; gap: 6px; }
+.foot b { color: var(--ink-2); font-weight: 600; }
+
+.tk svg { display: block; width: 100%; height: auto; }
+.tk .wh { fill: var(--ink); }
+.tk .win { fill: var(--surface); }
+.tk .rib { stroke: var(--surface); stroke-width: 1.2; opacity: 0.55; }
+
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  * { transition: none !important; animation: none !important; }
+}
+</style>
+</head>
+<body>
+<header class="top">
+  <div class="wrap top-in">
+    <a class="logo" href="#top" aria-label="Кузов, на главную">
+      <span class="logo-mark"><svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M2 6.5A1.5 1.5 0 0 1 3.5 5h10A1.5 1.5 0 0 1 15 6.5V8h3.2a1.5 1.5 0 0 1 1.2.6l2.3 3.1c.2.3.3.6.3.9v3.9a1.5 1.5 0 0 1-1.5 1.5h-.8a2.7 2.7 0 0 1-5.3 0H9.6a2.7 2.7 0 0 1-5.3 0h-.8A1.5 1.5 0 0 1 2 16.5zm15 3.5v2.5h3.1L18.3 10zM7 16.6a1.1 1.1 0 1 0 0 2.2 1.1 1.1 0 0 0 0-2.2zm10 0a1.1 1.1 0 1 0 0 2.2 1.1 1.1 0 0 0 0-2.2z"/></svg></span>
+      Кузов <span class="logo-sub">межгород</span>
+    </a>
+    <nav class="nav" aria-label="Разделы">
+      <a href="#prilozhenie">Приложение</a>
+      <a href="#podbor">Подбор тарифа</a>
+      <a href="#tarify">Тарифы</a>
+      <a href="#kak">Как работаем</a>
+      <a href="#voprosy">Вопросы</a>
+    </nav>
+    <a class="btn btn-accent btn-sm" href="#podbor">Рассчитать</a>
+  </div>
+</header>
+
+<main id="top">
+  <section class="hero">
+    <div class="wrap hero-in">
+      <div class="hero-copy">
+        <p class="eyebrow">Грузоперевозки фурами по межгороду</p>
+        <h1>Фура по межгороду <em>в пару касаний</em></h1>
+        <p class="lead">Москва, Казань, Екатеринбург и города по трассам М-7 и М-12. Выберите маршрут и кузов, и сразу увидите ориентировочную цену. Точную ставку подтвердим в течение рабочего дня.</p>
+        <div class="cta-row">
+          <a class="btn btn-accent" href="#podbor">Подобрать тариф</a>
+          <a class="btn" href="#prilozhenie">Посмотреть демо</a>
+        </div>
+        <div class="sign" role="group" aria-label="Расстояния по трассе">
+          <div class="sign-top"><span class="shield">М-7</span><span class="shield">М-12</span><span class="sign-from" id="signFrom">от Москвы, км</span></div>
+          <ul class="sign-rows" id="signRows"></ul>
+        </div>
+      </div>
+
+      <div class="phone-col" id="prilozhenie">
+        <div class="phone">
+          <div class="screen" id="screen">
+            <svg id="map" viewBox="0 0 1500 450" preserveAspectRatio="xMidYMid meet" aria-label="Карта маршрута" role="img"></svg>
+            <div class="app-top">
+              <span class="app-brand"><i><svg width="13" height="13" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M2 6.5A1.5 1.5 0 0 1 3.5 5h10A1.5 1.5 0 0 1 15 6.5V8h3.2a1.5 1.5 0 0 1 1.2.6l2.3 3.1c.2.3.3.6.3.9v3.9a1.5 1.5 0 0 1-1.5 1.5h-.8a2.7 2.7 0 0 1-5.3 0H9.6a2.7 2.7 0 0 1-5.3 0h-.8A1.5 1.5 0 0 1 2 16.5z"/></svg></i>Кузов</span>
+              <span class="demo">Демо</span>
+            </div>
+            <div class="sheet" id="sheet"></div>
+          </div>
+        </div>
+        <p class="phone-note">Демо-версия приложения. Нажмите «Заказать» и посмотрите весь путь заказа: поиск машины, погрузка, дорога, выгрузка.</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="band band-alt" id="podbor">
+    <div class="wrap">
+      <div class="sec-head">
+        <h2>Подбор тарифа</h2>
+        <p>Ответьте на четыре вопроса. Мы посоветуем кузов и посчитаем ориентировочную цену.</p>
+      </div>
+      <div class="picker">
+        <form class="q" id="pickForm" novalidate>
+          <fieldset class="qstep">
+            <legend><span class="qn">1</span>Маршрут</legend>
+            <div class="route-pick">
+              <label class="fld"><span>Откуда</span><span class="sel"><select id="pFrom"></select></span></label>
+              <button type="button" class="swap" id="swap" aria-label="Поменять города местами"><svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" d="M7 7h13l-4-4M17 17H4l4 4"/></svg></button>
+              <label class="fld"><span>Куда</span><span class="sel"><select id="pTo"></select></span></label>
+            </div>
+            <p class="hint" id="routeHint"></p>
+          </fieldset>
+
+          <fieldset class="qstep">
+            <legend><span class="qn">2</span>Что везёте</legend>
+            <div class="chips" id="cargoChips"></div>
+          </fieldset>
+
+          <fieldset class="qstep">
+            <legend><span class="qn">3</span>Сколько</legend>
+            <label class="range" for="pWeight"><span>Вес груза</span><output id="wOut" for="pWeight"></output><input type="range" id="pWeight" min="0.5" max="20" step="0.5"></label>
+            <label class="range" for="pPallets"><span>Паллет или мест</span><output id="pOut" for="pPallets"></output><input type="range" id="pPallets" min="1" max="33" step="1"></label>
+            <p class="hint">Евро-паллета 1,2 × 0,8 м. Для мебели и коробок считайте, сколько таких мест груз займёт на полу кузова.</p>
+          </fieldset>
+
+          <fieldset class="qstep">
+            <legend><span class="qn">4</span>Когда и опции</legend>
+            <div class="chips" id="whenChips"></div>
+            <label class="check"><input type="checkbox" id="pCrew"><span>Второй водитель<small>+18% к цене. Машина едет без длинных остановок на отдых.</small></span></label>
+            <label class="check"><input type="checkbox" id="pIns"><span>Страховка груза<small>Ориентировочно 0,15% от стоимости груза, минимум 1 500 ₽.</small></span></label>
+            <label class="fld fld-inline" id="valueWrap" hidden><span>Стоимость груза, ₽</span><input type="text" inputmode="numeric" id="pValue" autocomplete="off"></label>
+          </fieldset>
+        </form>
+
+        <aside class="result" aria-label="Результат подбора">
+          <div class="res-body" id="resBody" aria-live="polite"></div>
+          <div class="req" id="req" hidden>
+            <h3>Заявка</h3>
+            <p class="fine">Заполните два поля, скопируйте текст и отправьте его на почту или в мессенджер по номеру ниже. Ставку подтвердим в течение рабочего дня.</p>
+            <div class="req-grid">
+              <label class="fld"><span>Компания</span><input id="reqCompany" type="text" autocomplete="organization" placeholder="ООО «Ромашка»"></label>
+              <label class="fld"><span>Телефон или почта для ответа</span><input id="reqContact" type="text" autocomplete="tel" placeholder="+7 900 000-00-00"></label>
+            </div>
+            <label class="fld"><span>Текст заявки</span><textarea id="reqText" readonly></textarea></label>
+            <div class="req-actions">
+              <button type="button" class="btn btn-accent btn-sm" id="copyReq">Скопировать заявку</button>
+              <a class="btn btn-sm" id="mailReq" href="mailto:kirillsorazvitie@gmail.com">Открыть в почте</a>
+              <span class="toast" id="reqToast" role="status"></span>
+            </div>
+            <div class="contacts">
+              <div class="contact-row"><span class="mono">kirillsorazvitie@gmail.com</span><button type="button" class="copy" data-copy="kirillsorazvitie@gmail.com">Копировать</button></div>
+              <div class="contact-row"><span class="mono">+7 939 866-65-64</span><button type="button" class="copy" data-copy="+79398666564">Копировать</button></div>
+            </div>
+          </div>
+        </aside>
+      </div>
+    </div>
+  </section>
+
+  <section class="band" id="tarify">
+    <div class="wrap">
+      <div class="sec-head">
+        <h2>Тарифы</h2>
+        <p>Пять типов кузова для межгорода. Цена считается от расстояния по трассе. Для коротких рейсов действует минимальный заказ.</p>
+      </div>
+      <div class="tbl-wrap">
+        <table>
+          <thead><tr><th>Кузов</th><th>Грузоподъёмность</th><th>Паллеты</th><th>Объём</th><th>Длина</th><th class="r">Ставка</th><th class="r">Москва → Казань</th></tr></thead>
+          <tbody id="tariffRows"></tbody>
+        </table>
+      </div>
+      <p class="tbl-note">Цены ориентировочные, без опций. Ставка на межгороде зависит от сезона и загрузки направления, поэтому точную цену подтверждаем до подачи машины.</p>
+    </div>
+  </section>
+
+  <section class="band band-alt" id="kak">
+    <div class="wrap">
+      <div class="sec-head">
+        <h2>Как работаем</h2>
+        <p>От заявки до закрывающих документов. На каждом шаге вы знаете, что происходит с грузом.</p>
+      </div>
+      <ol class="steps">
+        <li><b>Заявка</b><p>Маршрут, груз и дата. Через сайт, почту или по телефону.</p></li>
+        <li><b>Ставка</b><p>Подтверждаем цену в течение рабочего дня.</p></li>
+        <li><b>Перевозчик</b><p>Подбираем машину под груз и проверяем перевозчика по ИНН, рейтингу и документам.</p></li>
+        <li><b>Договор и погрузка</b><p>Подписываем договор-заявку. На погрузку приезжает машина с нужным кузовом.</p></li>
+        <li><b>Дорога и выгрузка</b><p>Сообщаем, где машина. После выгрузки присылаем накладную, акт и счёт.</p></li>
+      </ol>
+    </div>
+  </section>
+
+  <section class="band" id="voprosy">
+    <div class="wrap">
+      <div class="sec-head"><h2>Вопросы</h2></div>
+      <div class="faq">
+        <details><summary>Какие документы будут?</summary><p>На каждую перевозку подписываем договор-заявку. Груз едет с транспортной накладной, бумажной или электронной (ЭТрН). После выгрузки присылаем акт и счёт.</p></details>
+        <details><summary>Как оплатить?</summary><p>Безналичным переводом по счёту от ИП. Срок оплаты фиксируем в договоре-заявке.</p></details>
+        <details><summary>Почему цена ориентировочная?</summary><p>Ставка на межгороде зависит от сезона, загрузки направления и обратного рейса. Калькулятор считает по нашим базовым ставкам, а точную цену мы подтверждаем до подачи машины.</p></details>
+        <details><summary>Можно отправить часть машины?</summary><p>Да. Если груз меньше целой машины, подскажем, как выгоднее: меньший кузов или догруз с попутным грузом.</p></details>
+        <details><summary>Груз застрахован?</summary><p>По запросу страхуем груз. В калькуляторе страховка посчитана ориентировочно: 0,15% от стоимости груза, минимум 1 500 ₽.</p></details>
+        <details><summary>Приложение уже работает?</summary><p>Сейчас на сайте демо-версия. Заказы принимаем по телефону и почте, а о том, где машина, сообщаем по телефону или в мессенджере, как вам удобнее.</p></details>
+      </div>
+    </div>
+  </section>
+
+  <section class="cband">
+    <div class="wrap cband-in">
+      <div>
+        <h2>Посчитаем ставку по вашему маршруту</h2>
+        <p>Позвоните или напишите: откуда, куда, что за груз и когда. Ответим со ставкой в течение рабочего дня.</p>
+      </div>
+      <div class="contacts">
+        <div class="contact-row"><span class="mono">+7 939 866-65-64</span><button type="button" class="copy" data-copy="+79398666564">Копировать</button><a href="tel:+79398666564">Позвонить</a></div>
+        <div class="contact-row"><span class="mono">kirillsorazvitie@gmail.com</span><button type="button" class="copy" data-copy="kirillsorazvitie@gmail.com">Копировать</button><a href="mailto:kirillsorazvitie@gmail.com?subject=%D0%97%D0%B0%D1%8F%D0%B2%D0%BA%D0%B0%20%D1%81%20%D1%81%D0%B0%D0%B9%D1%82%D0%B0%20%D0%9A%D1%83%D0%B7%D0%BE%D0%B2">Написать</a></div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <div class="wrap foot">
+    <p><b>ИП Пайметов Кирилл Евгеньевич</b> · ИНН 434585647865 · ОГРНИП 325430000027633</p>
+    <p>Цены на сайте ориентировочные и не являются публичной офертой. Приложение показано в демо-режиме.</p>
+  </div>
+</footer>
+
+<script>
+(() => {
+  const $ = (s, r = document) => r.querySelector(s);
+  const $$ = (s, r = document) => Array.from(r.querySelectorAll(s));
+  const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  /* ---------- geography ---------- */
+  const CITIES = {
+    msk: { n: 'Москва', s: 'Москва', gen: 'Москвы', ins: 'Москвой', acc: 'Москву', lon: 37.62, lat: 55.75 },
+    vla: { n: 'Владимир', s: 'Владимир', gen: 'Владимира', ins: 'Владимиром', acc: 'Владимир', lon: 40.40, lat: 56.13 },
+    nnv: { n: 'Нижний Новгород', s: 'Н. Новгород', gen: 'Нижнего Новгорода', ins: 'Нижним Новгородом', acc: 'Нижний Новгород', lon: 44.00, lat: 56.33 },
+    chb: { n: 'Чебоксары', s: 'Чебоксары', gen: 'Чебоксар', ins: 'Чебоксарами', acc: 'Чебоксары', lon: 47.25, lat: 56.13 },
+    kzn: { n: 'Казань', s: 'Казань', gen: 'Казани', ins: 'Казанью', acc: 'Казань', lon: 49.11, lat: 55.79 },
+    nch: { n: 'Набережные Челны', s: 'Наб. Челны', gen: 'Набережных Челнов', ins: 'Набережными Челнами', acc: 'Набережные Челны', lon: 52.40, lat: 55.74 },
+    ufa: { n: 'Уфа', s: 'Уфа', gen: 'Уфы', ins: 'Уфой', acc: 'Уфу', lon: 55.96, lat: 54.73 },
+    prm: { n: 'Пермь', s: 'Пермь', gen: 'Перми', ins: 'Пермью', acc: 'Пермь', lon: 56.23, lat: 58.01 },
+    ekb: { n: 'Екатеринбург', s: 'Екатеринбург', gen: 'Екатеринбурга', ins: 'Екатеринбургом', acc: 'Екатеринбург', lon: 60.60, lat: 56.84 },
+    chl: { n: 'Челябинск', s: 'Челябинск', gen: 'Челябинска', ins: 'Челябинском', acc: 'Челябинск', lon: 61.40, lat: 55.16 },
+  };
+  const IDS = Object.keys(CITIES);
+  // road km, approximate; label only where the route number is certain
+  const EDGES = [
+    ['msk', 'vla', 185, 'М-7', 1], ['vla', 'nnv', 235, 'М-7', -1], ['nnv', 'chb', 240, 'М-7', 1], ['chb', 'kzn', 150, 'М-7', -1],
+    ['kzn', 'nch', 230, 'М-7', 1], ['nch', 'ufa', 290, 'М-7', -1], ['nch', 'prm', 420, '', 1], ['prm', 'ekb', 360, 'Р-242', -1],
+    ['ufa', 'chl', 420, 'М-5', 1], ['chl', 'ekb', 210, '', -1], ['ufa', 'ekb', 520, '', 1],
+  ];
+  const ADJ = {};
+  for (const [a, b, km, road] of EDGES) {
+    (ADJ[a] = ADJ[a] || []).push({ to: b, km, road });
+    (ADJ[b] = ADJ[b] || []).push({ to: a, km, road });
+  }
+  function dijkstra(a) {
+    const dist = {}, prev = {}, done = new Set();
+    IDS.forEach(id => dist[id] = Infinity);
+    dist[a] = 0;
+    for (;;) {
+      let u = null;
+      for (const id of IDS) if (!done.has(id) && (u === null || dist[id] < dist[u])) u = id;
+      if (u === null || dist[u] === Infinity) break;
+      done.add(u);
+      for (const e of ADJ[u] || []) {
+        const nd = dist[u] + e.km;
+        if (nd < dist[e.to]) { dist[e.to] = nd; prev[e.to] = { from: u, road: e.road }; }
+      }
+    }
+    return { dist, prev };
+  }
+  function route(a, b) {
+    const { dist, prev } = dijkstra(a);
+    const path = [b], roads = [];
+    let c = b;
+    while (c !== a) {
+      const p = prev[c];
+      if (!p) break;
+      if (p.road && !roads.includes(p.road)) roads.unshift(p.road);
+      path.unshift(p.from);
+      c = p.from;
+    }
+    const cum = [0];
+    for (let i = 1; i < path.length; i++) cum.push(cum[i - 1] + edgeKm(path[i - 1], path[i]));
+    return { km: dist[b], path, roads, cum };
+  }
+  function edgeKm(a, b) { return (ADJ[a] || []).find(e => e.to === b).km; }
+
+  /* ---------- tariffs & pricing ---------- */
+  const TARIFFS = [
+    { id: 't5', name: 'Пятитонник', spec: '5 т · 15 пал.', cap: 5, pallets: 15, vol: '36 м³', len: '6,2 м', rate: 42, min: 18000, kind: 'small', note: 'Тент или фургон' },
+    { id: 't10', name: 'Десятитонник', spec: '10 т · 18 пал.', cap: 10, pallets: 18, vol: '50 м³', len: '8 м', rate: 55, min: 25000, kind: 'mid', note: 'Тент или фургон' },
+    { id: 'tent', name: 'Фура тент', spec: '20 т · 33 пал.', cap: 20, pallets: 33, vol: '82 м³', len: '13,6 м', rate: 70, min: 35000, kind: 'semi', note: 'Боковая и верхняя погрузка' },
+    { id: 'ref', name: 'Рефрижератор', spec: '20 т · 33 пал.', cap: 20, pallets: 33, vol: '76 м³', len: '13,4 м', rate: 86, min: 40000, kind: 'ref', note: 'От −20 до +20 °C' },
+    { id: 'bort', name: 'Борт', spec: '20 т · 13,6 м', cap: 20, pallets: 33, vol: 'открытый', len: '13,6 м', rate: 74, min: 38000, kind: 'flat', note: 'Металл, трубы, длинномер' },
+  ];
+  const T = Object.fromEntries(TARIFFS.map(t => [t.id, t]));
+  const CARGO = [
+    { id: 'pallets', n: 'Паллеты и коробки' },
+    { id: 'bulk', n: 'Стройматериалы, биг-бэги' },
+    { id: 'cold', n: 'Продукты с температурой' },
+    { id: 'long', n: 'Металл и длинномер' },
+    { id: 'bulky', n: 'Мебель и объёмный груз' },
+  ];
+  const CREW2 = 0.18, PLAN = 0.05, INS_RATE = 0.0015, INS_MIN = 1500;
+
+  const S = {
+    from: 'msk', to: 'kzn', tariff: 'tent', manual: false, when: 'soon', crew2: false, ins: false, value: 2000000,
+    cargo: 'pallets', weight: 12, pallets: 20, phase: 'order', prog: 0, chat: [],
+  };
+  let R = route(S.from, S.to);
+
+  const nf = new Intl.NumberFormat('ru-RU');
+  const rub = n => nf.format(Math.round(n)) + ' ₽';
+  const kmf = n => nf.format(Math.round(n)) + ' км';
+  const dec = n => String(n).replace('.', ',');
+  function plural(n, f) { const a = Math.abs(n) % 100, b = a % 10; if (a > 10 && a < 20) return f[2]; if (b > 1 && b < 5) return f[1]; if (b === 1) return f[0]; return f[2]; }
+  const esc = s => String(s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+
+  function quote(tid, km = R.km) {
+    const t = T[tid];
+    const byKm = km * t.rate;
+    const base = Math.max(t.min, byKm);
+    const lines = [byKm >= t.min ? [`${kmf(km)} × ${t.rate} ₽/км`, byKm] : ['Минимальный заказ', t.min]];
+    let total = base;
+    if (S.crew2) { const v = base * CREW2; lines.push(['Второй водитель, +18%', v]); total += v; }
+    if (S.when === 'plan') { const v = -base * PLAN; lines.push(['Заказ за 3 дня, −5%', v]); total += v; }
+    if (S.ins) { const v = Math.max(INS_MIN, S.value * INS_RATE); lines.push(['Страховка груза', v]); total += v; }
+    return { total: Math.round(total / 500) * 500, lines };
+  }
+  function transitHours(km = R.km, crew2 = S.crew2) {
+    const drive = km / 62;
+    return crew2 ? drive * 1.08 : drive + Math.floor(drive / 9) * 11;
+  }
+  function fmtDur(h) {
+    if (h < 20) return `≈ ${Math.max(1, Math.round(h))} ч`;
+    const d = Math.round(h / 24 * 2) / 2;
+    return `≈ ${dec(d)} сут.`;
+  }
+  function fits(t) { return S.weight <= t.cap && S.pallets <= t.pallets; }
+  function compat(t) {
+    if (S.cargo === 'cold') return t.id === 'ref';
+    if (S.cargo === 'long') return t.id === 'bort';
+    return t.id !== 'bort';
+  }
+  function recommend() {
+    const w = dec(S.weight) + ' т', p = `${S.pallets} ${plural(S.pallets, ['паллета', 'паллеты', 'паллет'])}`;
+    if (S.cargo === 'cold') return { id: 'ref', why: 'Продуктам нужен температурный режим, поэтому подойдёт рефрижератор: он держит от −20 до +20 °C.' };
+    if (S.cargo === 'long') return { id: 'bort', why: 'Металл и длинномер удобнее грузить краном или сбоку, поэтому подойдёт открытый борт длиной 13,6 м.' };
+    if (fits(T.t5)) return { id: 't5', why: `${w} и ${p} помещаются в пятитонник (до 5 т и 15 паллет). Это заметно дешевле фуры.` };
+    if (fits(T.t10)) return { id: 't10', why: `${w} и ${p} не помещаются в пятитонник, а в десятитонник (до 10 т и 18 паллет) помещаются.` };
+    let why = `Для груза ${w} и ${p} нужна фура: до 20 т и 33 паллет.`;
+    if (S.cargo === 'bulk') why += ' Тент снимается, так что биг-бэги можно грузить сверху.';
+    if (S.cargo === 'bulky') why += ' Для мебели важен объём, а фура берёт до 82 м³.';
+    return { id: 'tent', why };
+  }
+
+  /* ---------- truck icons ---------- */
+  function truck(kind) {
+    const wh = (xs, r = 3.4) => xs.map(x => `<circle class="wh" cx="${x}" cy="23" r="${r}"/>`).join('');
+    const cab = x => `<path fill="currentColor" d="M${x} 9h9l4 5v7h-13z"/><path class="win" d="M${x + 2} 10.5h5.5l2.8 3.6h-8.3z"/>`;
+    let body = '';
+    if (kind === 'small') body = `<rect fill="currentColor" x="10" y="4" width="34" height="17" rx="1.5"/>${cab(46)}${wh([19, 53])}`;
+    else if (kind === 'mid') body = `<rect fill="currentColor" x="4" y="3" width="41" height="18" rx="1.5"/>${cab(47)}${wh([12, 20, 54])}`;
+    else if (kind === 'semi') body = `<rect fill="currentColor" x="0" y="2" width="47" height="19" rx="1.5"/><path class="rib" d="M8 3v17M16 3v17M24 3v17M32 3v17M40 3v17"/>${cab(49)}${wh([7, 14, 21, 53, 59], 3.1)}`;
+    else if (kind === 'ref') body = `<rect fill="currentColor" x="0" y="2" width="45" height="19" rx="1.5"/><rect fill="currentColor" x="45.5" y="5" width="2.5" height="9" rx="1"/><path class="rib" d="M2 11.5h41"/>${cab(49)}${wh([7, 14, 21, 53, 59], 3.1)}`;
+    else body = `<rect fill="currentColor" x="0" y="16" width="47" height="5" rx="1"/><rect fill="currentColor" x="0" y="12.5" width="47" height="2" rx="1" opacity=".55"/><path stroke="currentColor" stroke-width="2.2" stroke-linecap="round" d="M3 10h40M5 7h36"/>${cab(49)}${wh([7, 14, 21, 53, 59], 3.1)}`;
+    return `<span class="tk" aria-hidden="true"><svg viewBox="0 0 64 28">${body}</svg></span>`;
+  }
+
+  /* ---------- map ---------- */
+  const proj = (lon, lat) => [(lon - 35) * 56, (59.4 - lat) * 100];
+  const RIVERS = [
+    ['Волга', [[35.6, 56.85], [37.3, 56.9], [38.4, 57.3], [39.9, 57.62], [40.95, 57.77], [42.2, 57.4], [43.1, 56.8], [44.0, 56.33], [45.6, 56.1], [47.25, 56.13], [48.4, 55.9], [49.0, 55.72], [48.9, 55.3], [48.6, 54.9], [48.4, 54.3], [49.0, 53.6], [50.1, 53.2]], [48.75, 55.05]],
+    ['Ока', [[36.2, 54.5], [37.4, 54.9], [38.8, 55.1], [39.7, 54.62], [40.8, 54.9], [42.05, 55.57], [43.2, 56.1], [44.0, 56.33]], [39.9, 54.48]],
+    ['Кама', [[56.6, 58.7], [56.23, 58.02], [55.4, 57.6], [54.6, 57.1], [53.8, 56.45], [53.1, 56.0], [52.4, 55.74], [51.4, 55.55], [50.6, 55.37], [49.6, 55.2], [48.9, 55.3]], [54.0, 56.82]],
+    ['Белая', [[58.2, 53.6], [56.6, 54.2], [55.96, 54.73], [55.0, 55.4], [54.2, 55.9], [53.8, 56.45]], [56.9, 54.12]],
+  ];
+  const ctrl = {};
+  for (const [a, b, , , bend] of EDGES) {
+    const [x1, y1] = proj(CITIES[a].lon, CITIES[a].lat), [x2, y2] = proj(CITIES[b].lon, CITIES[b].lat);
+    const mx = (x1 + x2) / 2, my = (y1 + y2) / 2, dx = x2 - x1, dy = y2 - y1, L = Math.hypot(dx, dy);
+    const off = L * 0.07 * bend;
+    ctrl[a + b] = [mx - dy / L * off, my + dx / L * off];
+    ctrl[b + a] = ctrl[a + b];
+  }
+  const svg = $('#map');
+  function buildMap() {
+    let h = '<rect class="m-land" x="-3000" y="-3000" width="8000" height="8000"/>';
+    for (const [name, pts, lab] of RIVERS) {
+      h += `<polyline class="m-water" vector-effect="non-scaling-stroke" points="${pts.map(p => proj(p[0], p[1]).map(v => v.toFixed(1)).join(',')).join(' ')}"/>`;
+      const [lx, ly] = proj(lab[0], lab[1]);
+      h += `<text class="m-rlab" x="${lx}" y="${ly}" data-fs="10.5">${name}</text>`;
+    }
+    for (const [a, b] of EDGES) {
+      const d = edgePath(a, b, true);
+      h += `<path class="m-road-edge" vector-effect="non-scaling-stroke" d="${d}"/>`;
+    }
+    for (const [a, b] of EDGES) h += `<path class="m-road" vector-effect="non-scaling-stroke" d="${edgePath(a, b, true)}"/>`;
+    h += '<path id="routeCase" class="m-route-case" vector-effect="non-scaling-stroke" d=""/><path id="routeLine" class="m-route" vector-effect="non-scaling-stroke" d=""/>';
+    h += '<circle id="pulse" class="m-pulse" r="0" opacity="0"/><g id="idle"></g>';
+    for (const id of IDS) {
+      const [x, y] = proj(CITIES[id].lon, CITIES[id].lat);
+      h += `<g class="m-city" data-id="${id}"><circle class="m-dot" vector-effect="non-scaling-stroke" cx="${x}" cy="${y}" data-r="4"/><text class="m-lab" x="${x}" data-cy="${y}" text-anchor="middle" data-fs="11">${CITIES[id].s}</text></g>`;
+    }
+    h += '<g id="truck" opacity="0"><circle class="m-truck-bg" r="11"/><path class="m-truck-arrow" d="M-4.5 -5.5 L6 0 L-4.5 5.5 L-2 0 Z"/></g>';
+    svg.innerHTML = h;
+  }
+  function edgePath(a, b, withMove) {
+    const [x1, y1] = proj(CITIES[a].lon, CITIES[a].lat), [x2, y2] = proj(CITIES[b].lon, CITIES[b].lat);
+    const [cx, cy] = ctrl[a + b];
+    return `${withMove ? `M${x1.toFixed(1)} ${y1.toFixed(1)} ` : ''}Q${cx.toFixed(1)} ${cy.toFixed(1)} ${x2.toFixed(1)} ${y2.toFixed(1)}`;
+  }
+  function routeD(path) {
+    const [x, y] = proj(CITIES[path[0]].lon, CITIES[path[0]].lat);
+    let d = `M${x.toFixed(1)} ${y.toFixed(1)}`;
+    for (let i = 1; i < path.length; i++) d += ' ' + edgePath(path[i - 1], path[i], false);
+    return d;
+  }
+
+  let VB = { x: -40, y: -40, w: 1500, h: 450 }, vbAnim = 0;
+  const IDLE_PX = [[-22, -16], [18, -22], [24, 14]];
+  function pxScale() { return VB.w / (svg.clientWidth || 340); }
+  function applyVB() {
+    svg.setAttribute('viewBox', `${VB.x} ${VB.y} ${VB.w} ${VB.h}`);
+    const k = pxScale();
+    $$('[data-r]', svg).forEach(el => el.setAttribute('r', el.dataset.r * k));
+    $$('[data-fs]', svg).forEach(el => el.setAttribute('font-size', el.dataset.fs * k));
+    $$('.m-lab', svg).forEach(el => { el.setAttribute('y', el.dataset.cy - 9 * k); el.setAttribute('stroke-width', 3 * k); });
+    const [ox, oy] = proj(CITIES[S.from].lon, CITIES[S.from].lat);
+    $('#idle').innerHTML = (S.phase === 'order' || S.phase === 'search')
+      ? IDLE_PX.map(([dx, dy]) => `<circle class="m-idle" cx="${ox + dx * k}" cy="${oy + dy * k}" r="${4.5 * k}" stroke-width="${2 * k}"/>`).join('')
+      : '';
+    placeTruck();
+  }
+  function fitMap(animate = true) {
+    const sw = svg.clientWidth, sh = svg.clientHeight;
+    if (!sw || !sh) return;
+    const pts = R.path.map(id => proj(CITIES[id].lon, CITIES[id].lat));
+    let bx = Math.min(...pts.map(p => p[0])), by = Math.min(...pts.map(p => p[1]));
+    let bw = Math.max(...pts.map(p => p[0])) - bx, bh = Math.max(...pts.map(p => p[1])) - by;
+    const minSpan = 170;
+    if (bw < minSpan) { bx -= (minSpan - bw) / 2; bw = minSpan; }
+    if (bh < minSpan * 0.6) { by -= (minSpan * 0.6 - bh) / 2; bh = minSpan * 0.6; }
+    const sheetH = $('#sheet').offsetHeight || sh * 0.5;
+    const ax = 34, ay = 74, aw = sw - 68, ah = Math.max(80, sh - sheetH - ay - 26);
+    const s = Math.min(aw / bw, ah / bh);
+    const target = { x: bx - (ax + (aw - bw * s) / 2) / s, y: by - (ay + (ah - bh * s) / 2) / s, w: sw / s, h: sh / s };
+    cancelAnimationFrame(vbAnim);
+    if (!animate || reduced) { VB = target; applyVB(); return; }
+    const from = { ...VB }, t0 = performance.now(), dur = 650;
+    const step = now => {
+      const t = Math.min(1, (now - t0) / dur), e = t < 0.5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2;
+      VB = { x: from.x + (target.x - from.x) * e, y: from.y + (target.y - from.y) * e, w: from.w + (target.w - from.w) * e, h: from.h + (target.h - from.h) * e };
+      applyVB();
+      if (t < 1) vbAnim = requestAnimationFrame(step);
+    };
+    vbAnim = requestAnimationFrame(step);
+  }
+  function drawRoute() {
+    const d = routeD(R.path);
+    $('#routeCase').setAttribute('d', d);
+    $('#routeLine').setAttribute('d', d);
+    $$('.m-city', svg).forEach(g => {
+      const id = g.dataset.id;
+      g.classList.toggle('on', R.path.includes(id));
+      g.classList.toggle('end', id === S.from || id === S.to);
+    });
+  }
+  function placeTruck() {
+    const g = $('#truck');
+    const show = S.phase === 'assigned' || S.phase === 'transit' || S.phase === 'done';
+    g.setAttribute('opacity', show ? 1 : 0);
+    if (!show) return;
+    const line = $('#routeLine'), L = line.getTotalLength();
+    const p = S.phase === 'assigned' ? 0 : S.phase === 'done' ? 1 : S.prog;
+    const a = line.getPointAtLength(Math.max(0, Math.min(L, p * L)));
+    const b = line.getPointAtLength(Math.max(0, Math.min(L, p * L + (p > 0.99 ? -2 : 2))));
+    let ang = Math.atan2(b.y - a.y, b.x - a.x) * 180 / Math.PI;
+    if (p > 0.99) ang += 180;
+    g.setAttribute('transform', `translate(${a.x} ${a.y}) scale(${pxScale()}) rotate(${ang})`);
+  }
+
+  /* ---------- app sheet ---------- */
+  const sheet = $('#sheet');
+  let sheetPhase = null, timers = [], raf = 0;
+  const later = (fn, ms) => timers.push(setTimeout(fn, ms));
+  function clearRun() { timers.forEach(clearTimeout); timers = []; cancelAnimationFrame(raf); }
+  const cityOpts = sel => IDS.map(id => `<option value="${id}"${id === sel ? ' selected' : ''}>${CITIES[id].n}</option>`).join('');
+
+  function renderSheet() {
+    if (sheetPhase !== S.phase) {
+      sheetPhase = S.phase;
+      if (S.phase === 'order') {
+        sheet.innerHTML = `<div class="grab"></div>
+          <div class="rt">
+            <label class="rt-row"><span class="dot"></span><span class="sel"><select id="aFrom" aria-label="Откуда">${cityOpts(S.from)}</select></span></label>
+            <label class="rt-row"><span class="dot b"></span><span class="sel"><select id="aTo" aria-label="Куда">${cityOpts(S.to)}</select></span></label>
+          </div>
+          <div class="when" role="group" aria-label="Когда подать машину">
+            <button type="button" class="chip-btn" data-when="soon">Завтра</button>
+            <button type="button" class="chip-btn" data-when="plan">Через 3 дня · −5%</button>
+          </div>
+          <div class="tcar" role="radiogroup" aria-label="Тариф" id="tcar"></div>
+          <button type="button" class="go" id="goBtn"></button>
+          <p class="meta" id="aMeta"></p>`;
+        $('#aFrom').addEventListener('change', e => setRoute(e.target.value, S.to));
+        $('#aTo').addEventListener('change', e => setRoute(S.from, e.target.value));
+        $$('[data-when]', sheet).forEach(b => b.addEventListener('click', () => { S.when = b.dataset.when; updateAll(); }));
+        $('#goBtn').addEventListener('click', startSearch);
+      } else if (S.phase === 'search') {
+        const t = T[S.tariff];
+        sheet.innerHTML = `<div class="grab"></div>
+          <p class="s-title">Ищем машину</p>
+          <p class="s-sub">${esc(t.name)} рядом с ${esc(CITIES[S.from].ins)}</p>
+          <div class="bar"><i id="sBar"></i></div>
+          <ul class="checks">
+            <li data-i="0"><span class="ck">${tick()}</span>Подбираем кузов под ваш груз</li>
+            <li data-i="1"><span class="ck">${tick()}</span>Проверяем перевозчика по ИНН и рейтингу</li>
+            <li data-i="2"><span class="ck">${tick()}</span>Согласуем время подачи</li>
+          </ul>
+          <button type="button" class="link-btn" id="cancel">Отменить</button>`;
+        $('#cancel').addEventListener('click', toOrder);
+      } else if (S.phase === 'assigned') {
+        const t = T[S.tariff], q = quote(S.tariff);
+        sheet.innerHTML = `<div class="grab"></div>
+          <p class="s-title">Машина назначена</p>
+          <dl class="kv">
+            <div><dt>Кузов</dt><dd>${esc(t.name)}, ${esc(t.spec)}</dd></div>
+            <div><dt>Подача</dt><dd>${S.when === 'plan' ? 'через 3 дня' : 'завтра'}, 9:00</dd></div>
+            <div><dt>Водитель</dt><dd>Сергей <span class="s-sub">(демо)</span></dd></div>
+            <div><dt>Перевозчик</dt><dd class="ok-t">проверен ✓</dd></div>
+            <div><dt>Стоимость</dt><dd class="mono">${rub(q.total)}</dd></div>
+          </dl>
+          <button type="button" class="go" id="track">Следить за машиной</button>
+          <button type="button" class="link-btn" id="cancel">Отменить заказ</button>`;
+        $('#track').addEventListener('click', startTransit);
+        $('#cancel').addEventListener('click', toOrder);
+      } else if (S.phase === 'transit') {
+        sheet.innerHTML = `<div class="grab"></div>
+          <p class="s-title">В пути в ${esc(CITIES[S.to].acc)}</p>
+          <div class="bar"><i id="tBar"></i></div>
+          <ul class="tl" id="tl"></ul>
+          <div class="chat"><p class="chat-h">Чат с водителем</p><div id="msgs" style="display:grid;gap:6px"></div>
+            <div class="quick"><button type="button" data-q="where">Где сейчас?</button><button type="button" data-q="eta">Во сколько будете?</button></div>
+          </div>`;
+        $$('[data-q]', sheet).forEach(b => b.addEventListener('click', () => ask(b.dataset.q)));
+      } else if (S.phase === 'done') {
+        const q = quote(S.tariff);
+        sheet.innerHTML = `<div class="grab"></div>
+          <p class="s-title"><span class="ok-t">✓</span> Груз доставлен в ${esc(CITIES[S.to].acc)}</p>
+          <dl class="kv">
+            <div><dt>Маршрут</dt><dd>${esc(CITIES[S.from].n)} → ${esc(CITIES[S.to].n)}</dd></div>
+            <div><dt>Расстояние</dt><dd class="mono">${kmf(R.km)}</dd></div>
+            <div><dt>Стоимость</dt><dd class="mono">${rub(q.total)}</dd></div>
+            <div><dt>Документы</dt><dd>накладная, акт, счёт</dd></div>
+          </dl>
+          <button type="button" class="go" id="again">Новый заказ</button>`;
+        $('#again').addEventListener('click', toOrder);
+      }
+    }
+    if (S.phase === 'order') updateOrder();
+    if (S.phase === 'transit') updateTransit();
+  }
+  const tick = () => '<svg width="10" height="10" viewBox="0 0 10 10" aria-hidden="true"><path d="M1.5 5.2 4 7.5 8.5 2.5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+
+  function updateOrder() {
+    $('#aFrom').value = S.from; $('#aTo').value = S.to;
+    $$('[data-when]', sheet).forEach(b => b.setAttribute('aria-pressed', String(b.dataset.when === S.when)));
+    const car = $('#tcar');
+    car.innerHTML = TARIFFS.map(t => `<button type="button" class="tcard" role="radio" aria-checked="${t.id === S.tariff}" data-t="${t.id}">
+        ${truck(t.kind)}<b>${t.name}</b><small>${t.spec}</small><span class="mono">${rub(quote(t.id).total)}</span></button>`).join('');
+    $$('.tcard', car).forEach(b => b.addEventListener('click', () => { S.tariff = b.dataset.t; S.manual = true; updateAll(); }));
+    const sel = $(`.tcard[data-t="${S.tariff}"]`, car);
+    if (sel && car.scrollWidth > car.clientWidth) car.scrollLeft = Math.max(0, sel.offsetLeft - 14 - (car.clientWidth - sel.offsetWidth) / 2);
+    $('#goBtn').innerHTML = `Заказать <span class="mono">· ${rub(quote(S.tariff).total)}</span>`;
+    const opts = [S.crew2 && 'второй водитель', S.ins && 'страховка'].filter(Boolean);
+    $('#aMeta').textContent = `${kmf(R.km)} · в пути ${fmtDur(transitHours())}${opts.length ? ' · ' + opts.join(', ') : ''}`;
+  }
+
+  function toOrder() { clearRun(); S.phase = 'order'; S.prog = 0; S.chat = []; $('#pulse').setAttribute('opacity', 0); renderSheet(); applyVB(); fitMap(); }
+  function startSearch() {
+    clearRun();
+    S.phase = 'search'; renderSheet(); applyVB(); fitMap();
+    const [ox, oy] = proj(CITIES[S.from].lon, CITIES[S.from].lat);
+    const pulse = $('#pulse'); pulse.setAttribute('cx', ox); pulse.setAttribute('cy', oy);
+    const t0 = performance.now(), dur = 3300;
+    const loop = now => {
+      const t = (now - t0) / dur, k = pxScale(), ph = ((now - t0) % 1100) / 1100;
+      pulse.setAttribute('r', (8 + ph * 46) * k);
+      pulse.setAttribute('opacity', reduced ? 0.15 : (0.28 * (1 - ph)).toFixed(3));
+      const bar = $('#sBar'); if (bar) bar.style.width = Math.min(100, t * 100) + '%';
+      $$('.checks li', sheet).forEach(li => li.classList.toggle('done', t > (+li.dataset.i + 1) * 0.3));
+      if (t < 1) raf = requestAnimationFrame(loop);
+      else { pulse.setAttribute('opacity', 0); S.phase = 'assigned'; renderSheet(); applyVB(); fitMap(); }
+    };
+    raf = requestAnimationFrame(loop);
+  }
+  function cityAtKm(km) {
+    let best = R.path[0], bd = Infinity;
+    R.path.forEach((id, i) => { const d = Math.abs(R.cum[i] - km); if (d < bd) { bd = d; best = id; } });
+    return best;
+  }
+  function pushMsg(who, text) { S.chat.push({ who, text }); renderMsgs(); }
+  function renderMsgs() {
+    const box = $('#msgs'); if (!box) return;
+    box.innerHTML = S.chat.slice(-3).map(m => `<div class="msg ${m.who}">${esc(m.text)}</div>`).join('');
+  }
+  function ask(q) {
+    const kmNow = R.km * S.prog;
+    if (q === 'where') {
+      pushMsg('me', 'Где сейчас?');
+      later(() => pushMsg('drv', `Сейчас около ${CITIES[cityAtKm(R.km * S.prog)].gen}, едем по графику.`), 900);
+    } else {
+      pushMsg('me', 'Во сколько будете?');
+      const left = transitHours(R.km - kmNow);
+      later(() => pushMsg('drv', left < 20 ? `Примерно через ${Math.max(1, Math.round(left))} ч, наберу перед выгрузкой.` : `Примерно через ${dec(Math.round(left / 12) / 2)} сут., наберу перед выгрузкой.`), 900);
+    }
+  }
+  function startTransit() {
+    clearRun();
+    S.phase = 'transit'; S.prog = 0; S.chat = [];
+    renderSheet(); applyVB(); fitMap();
+    pushMsg('drv', 'Загрузились, выезжаю.');
+    const mid = R.path.length > 2 ? R.path[Math.floor((R.path.length - 1) / 2)] : null;
+    let said = { mid: false, near: false };
+    const t0 = performance.now(), dur = 16000;
+    const loop = now => {
+      S.prog = Math.min(1, (now - t0) / dur);
+      if (mid && !said.mid && R.km * S.prog > R.cum[R.path.indexOf(mid)]) { said.mid = true; pushMsg('drv', `Прошёл ${CITIES[mid].acc}, всё по графику.`); }
+      if (!said.near && S.prog > 0.88) { said.near = true; pushMsg('drv', 'Подъезжаю, через час буду на выгрузке.'); }
+      updateTransit(); placeTruck();
+      if (S.prog < 1) raf = requestAnimationFrame(loop);
+      else { S.phase = 'done'; renderSheet(); applyVB(); }
+    };
+    raf = requestAnimationFrame(loop);
+  }
+  function updateTransit() {
+    const bar = $('#tBar'); if (bar) bar.style.width = (S.prog * 100).toFixed(1) + '%';
+    const kmNow = R.km * S.prog, left = R.km - kmNow;
+    const tl = $('#tl'); if (!tl) return;
+    const now = CITIES[cityAtKm(kmNow)];
+    const items = [
+      ['done', `Погрузка, ${CITIES[S.from].n}`, ''],
+      ['now', `В пути, около ${now.gen}`, `${kmf(left)} осталось`],
+      ['', `Выгрузка, ${CITIES[S.to].n}`, fmtDur(transitHours(left))],
+    ];
+    tl.innerHTML = items.map(([c, t, m]) => `<li class="${c}"><span class="pt"></span><span>${esc(t)}</span><small>${esc(m)}</small></li>`).join('');
+  }
+
+  /* ---------- picker ---------- */
+  function buildPicker() {
+    $('#pFrom').innerHTML = cityOpts(S.from);
+    $('#pTo').innerHTML = cityOpts(S.to);
+    $('#cargoChips').innerHTML = CARGO.map(c => `<label class="chip"><input type="radio" name="cargo" value="${c.id}"><span>${c.n}</span></label>`).join('');
+    $('#whenChips').innerHTML = `<label class="chip"><input type="radio" name="when" value="soon"><span>В ближайшие 1–2 дня</span></label><label class="chip"><input type="radio" name="when" value="plan"><span>Через 3 дня и позже · −5%</span></label>`;
+    $('#pFrom').addEventListener('change', e => setRoute(e.target.value, S.to));
+    $('#pTo').addEventListener('change', e => setRoute(S.from, e.target.value));
+    $('#swap').addEventListener('click', () => setRoute(S.to, S.from));
+    $$('input[name="cargo"]').forEach(i => i.addEventListener('change', () => { S.cargo = i.value; S.manual = false; updateAll(); }));
+    $$('input[name="when"]').forEach(i => i.addEventListener('change', () => { S.when = i.value; updateAll(); }));
+    $('#pWeight').addEventListener('input', e => { S.weight = +e.target.value; S.manual = false; updateAll(); });
+    $('#pPallets').addEventListener('input', e => { S.pallets = +e.target.value; S.manual = false; updateAll(); });
+    $('#pCrew').addEventListener('change', e => { S.crew2 = e.target.checked; updateAll(); });
+    $('#pIns').addEventListener('change', e => { S.ins = e.target.checked; updateAll(); });
+    const val = $('#pValue');
+    val.addEventListener('input', () => { const n = parseInt(val.value.replace(/\D/g, ''), 10); S.value = isNaN(n) ? 0 : n; updateAll(false); });
+    val.addEventListener('blur', () => { val.value = nf.format(S.value); });
+    $('#resBody').addEventListener('click', e => {
+      const alt = e.target.closest('[data-alt]');
+      if (alt) { S.tariff = alt.dataset.alt; S.manual = true; updateAll(); return; }
+      if (e.target.closest('#useRec')) { S.manual = false; updateAll(); return; }
+      if (e.target.closest('#toApp')) { if (S.phase !== 'order') toOrder(); $('#prilozhenie').scrollIntoView({ behavior: reduced ? 'auto' : 'smooth', block: 'center' }); return; }
+      if (e.target.closest('#toReq')) { const r = $('#req'); r.hidden = false; updateReq(); $('#reqCompany').focus({ preventScroll: true }); r.scrollIntoView({ behavior: reduced ? 'auto' : 'smooth', block: 'nearest' }); }
+    });
+    ['#reqCompany', '#reqContact'].forEach(s => $(s).addEventListener('input', updateReq));
+    $('#copyReq').addEventListener('click', () => copyText($('#reqText').value, $('#reqToast'), $('#reqText')));
+    $$('.copy').forEach(b => b.addEventListener('click', () => copyText(b.dataset.copy, b)));
+  }
+  function syncPicker() {
+    $('#pFrom').value = S.from; $('#pTo').value = S.to;
+    $$('input[name="cargo"]').forEach(i => i.checked = i.value === S.cargo);
+    $$('input[name="when"]').forEach(i => i.checked = i.value === S.when);
+    $('#pWeight').value = S.weight; $('#pPallets').value = S.pallets;
+    $('#wOut').textContent = dec(S.weight) + ' т';
+    $('#pOut').textContent = `${S.pallets} ${plural(S.pallets, ['паллета', 'паллеты', 'паллет'])}`;
+    $('#pCrew').checked = S.crew2; $('#pIns').checked = S.ins;
+    $('#valueWrap').hidden = !S.ins;
+    if (document.activeElement !== $('#pValue')) $('#pValue').value = nf.format(S.value);
+    const via = R.path.slice(1, -1).map(id => CITIES[id].n);
+    $('#routeHint').innerHTML = `<b>${kmf(R.km)}</b> по трассе${R.roads.length ? ' ' + R.roads.join(', ') : ''}${via.length ? ` через ${esc(via.join(', '))}` : ''}.`;
+  }
+  function renderResult() {
+    const rec = recommend();
+    if (!S.manual) S.tariff = rec.id;
+    const t = T[S.tariff], q = quote(S.tariff);
+    let why = rec.why, warn = false;
+    if (S.manual && S.tariff !== rec.id) {
+      if (!fits(t)) { why = `${dec(S.weight)} т и ${S.pallets} ${plural(S.pallets, ['паллета', 'паллеты', 'паллет'])} не поместятся в этот кузов (до ${t.cap} т и ${t.pallets} паллет).`; warn = true; }
+      else if (!compat(t)) { why = `Для такого груза мы бы советовали другой кузов: ${T[rec.id].name.toLowerCase()}.`; warn = true; }
+      else why = `Вы выбрали этот кузов сами. Мы советуем ${T[rec.id].name.toLowerCase()}: ${rub(quote(rec.id).total)}.`;
+    }
+    const alts = TARIFFS.filter(x => x.id !== S.tariff && compat(x) && fits(x));
+    const roads = R.roads.length ? R.roads.join(', ') : '';
+    $('#resBody').innerHTML = `
+      <div class="res-head">
+        <div><p class="eyebrow">${S.manual && S.tariff !== rec.id ? 'Ваш выбор' : 'Подойдёт'}</p><h3>${t.name}</h3></div>
+        ${truck(t.kind)}
+        <p class="s-sub">${t.spec} · ${t.vol} · ${t.note}</p>
+      </div>
+      <p class="why${warn ? ' warn' : ''}">${esc(why)}</p>
+      ${S.manual && S.tariff !== rec.id ? `<button type="button" class="link-btn" id="useRec" style="justify-self:start">Вернуть рекомендацию</button>` : ''}
+      <div class="price"><span class="mono">${rub(q.total)}</span><span>ориентировочно</span></div>
+      <dl class="lines">${q.lines.map(([k, v]) => `<div><dt>${esc(k)}</dt><dd>${v < 0 ? '−' + rub(-v) : rub(v)}</dd></div>`).join('')}</dl>
+      <p class="eta"><span>${esc(CITIES[S.from].n)} → ${esc(CITIES[S.to].n)}</span><span><b>${kmf(R.km)}</b>${roads ? ' · ' + roads : ''}</span><span>в пути <b>${fmtDur(transitHours())}</b></span></p>
+      ${alts.length ? `<div class="alts"><p>Тоже подойдут</p>${alts.map(x => {
+        const d = quote(x.id).total - q.total;
+        return `<button type="button" class="alt" data-alt="${x.id}">${truck(x.kind)}<span><b>${x.name}</b><small>${x.spec}</small></span><span class="mono">${d > 0 ? '+' : '−'}${rub(Math.abs(d))}</span></button>`;
+      }).join('')}</div>` : ''}
+      <div class="res-actions"><button type="button" class="btn" id="toApp">Показать в приложении</button><button type="button" class="btn btn-accent" id="toReq">Оформить заявку</button></div>`;
+  }
+  function reqTextNow() {
+    const t = T[S.tariff], q = quote(S.tariff);
+    const opts = [S.crew2 && 'второй водитель', S.ins && `страховка (стоимость груза ${rub(S.value)})`].filter(Boolean);
+    return [
+      'Заявка с сайта Кузов',
+      `Маршрут: ${CITIES[S.from].n} → ${CITIES[S.to].n} (${kmf(R.km)})`,
+      `Груз: ${CARGO.find(c => c.id === S.cargo).n.toLowerCase()}, ${dec(S.weight)} т, ${S.pallets} ${plural(S.pallets, ['паллета', 'паллеты', 'паллет'])}`,
+      `Кузов: ${t.name} (${t.spec})`,
+      `Подача: ${S.when === 'plan' ? 'через 3 дня и позже' : 'в ближайшие 1–2 дня'}`,
+      `Опции: ${opts.length ? opts.join('; ') : 'нет'}`,
+      `Ориентировочная цена с сайта: ${rub(q.total)}`,
+      `Компания: ${$('#reqCompany').value.trim() || '—'}`,
+      `Контакт для ответа: ${$('#reqContact').value.trim() || '—'}`,
+    ].join('\n');
+  }
+  function updateReq() {
+    if ($('#req').hidden) return;
+    const text = reqTextNow();
+    $('#reqText').value = text;
+    $('#mailReq').href = `mailto:kirillsorazvitie@gmail.com?subject=${encodeURIComponent(`Заявка с сайта Кузов: ${CITIES[S.from].n} → ${CITIES[S.to].n}`)}&body=${encodeURIComponent(text)}`;
+  }
+  async function copyText(text, feedbackEl, selectEl) {
+    const say = msg => {
+      if (!feedbackEl) return;
+      const isBtn = feedbackEl.tagName === 'BUTTON', prev = isBtn ? feedbackEl.dataset.label || feedbackEl.textContent : '';
+      if (isBtn) { feedbackEl.dataset.label = prev; feedbackEl.textContent = msg; setTimeout(() => feedbackEl.textContent = prev, 1600); }
+      else { feedbackEl.textContent = msg; setTimeout(() => { if (feedbackEl.textContent === msg) feedbackEl.textContent = ''; }, 2400); }
+    };
+    try { await navigator.clipboard.writeText(text); say('Скопировано'); }
+    catch {
+      if (selectEl) { selectEl.focus(); selectEl.select(); say('Текст выделен, нажмите Ctrl+C'); }
+      else say('Выделите и скопируйте');
+    }
+  }
+
+  /* ---------- sign & table ---------- */
+  function renderSign() {
+    const { dist } = dijkstra(S.from);
+    const anchors = ['kzn', 'ekb', 'msk', 'nnv', 'nch', 'prm', 'ufa', 'chl'].filter(id => id !== S.from).slice(0, 3).sort((a, b) => dist[a] - dist[b]);
+    const arrow = id => {
+      const east = CITIES[id].lon > CITIES[S.from].lon;
+      return `<svg width="22" height="22" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="${east ? 'M4 11h11.2l-4.6-4.6L12 5l7 7-7 7-1.4-1.4 4.6-4.6H4z' : 'M20 11H8.8l4.6-4.6L12 5l-7 7 7 7 1.4-1.4-4.6-4.6H20z'}"/></svg>`;
+    };
+    $('#signFrom').textContent = `от ${CITIES[S.from].gen}, км`;
+    $('#signRows').innerHTML = anchors.map(id => `<li>${arrow(id)}<span>${CITIES[id].n}</span><span class="km">${nf.format(dist[id])}</span></li>`).join('');
+  }
+  function renderTable() {
+    const ref = route('msk', 'kzn').km;
+    $('#tariffRows').innerHTML = TARIFFS.map(t => {
+      const base = Math.round(Math.max(t.min, ref * t.rate) / 500) * 500;
+      return `<tr>
+        <td><div class="t-name">${truck(t.kind)}<span><b>${t.name}</b><small>${t.note}</small></span></div></td>
+        <td class="num">${t.cap} т</td>
+        <td class="num">${t.id === 'bort' ? '—' : t.pallets}</td>
+        <td class="num">${t.vol}</td>
+        <td class="num">${t.len}</td>
+        <td class="num r"><span class="rate">${t.rate} ₽/км<small>от ${rub(t.min)}</small></span></td>
+        <td class="num r">${rub(base)}</td>
+      </tr>`;
+    }).join('');
+  }
+
+  /* ---------- glue ---------- */
+  function setRoute(from, to) {
+    if (from === to) to = IDS.find(id => id !== from && (from === 'msk' ? id === 'kzn' : id === 'msk'));
+    const changed = from !== S.from || to !== S.to;
+    S.from = from; S.to = to; R = route(S.from, S.to);
+    if (changed && S.phase !== 'order') { clearRun(); S.phase = 'order'; S.prog = 0; S.chat = []; $('#pulse').setAttribute('opacity', 0); }
+    updateAll();
+    drawRoute(); applyVB(); fitMap();
+  }
+  function updateAll() {
+    renderResult();
+    syncPicker();
+    renderSheet();
+    renderSign();
+    updateReq();
+  }
+
+  function start(saved) {
+    if (saved && saved.from && CITIES[saved.from]) Object.assign(S, saved, { phase: 'order', prog: 0, chat: [] });
+    R = route(S.from, S.to);
+    buildMap(); buildPicker(); renderTable();
+    updateAll(); drawRoute();
+    requestAnimationFrame(() => { fitMap(false); });
+    let rz = 0;
+    addEventListener('resize', () => { clearTimeout(rz); rz = setTimeout(() => fitMap(false), 120); });
+    if (document.fonts && document.fonts.ready) document.fonts.ready.then(() => fitMap(false));
+  }
+  window.claude?.hot?.snapshot?.(() => {
+    const { phase, prog, chat, ...rest } = S;
+    return rest;
+  });
+  window.claude?.hot?.ready ? window.claude.hot.ready(start) : start(window.claude?.hot?.data ?? {});
+})();
+</script>
+</body>
+</html>
